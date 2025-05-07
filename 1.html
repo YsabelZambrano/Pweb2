@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 7 - Comparar Regiones</title>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ejercicio 7: Comparar Regiones Seleccionadas</h1>
+
+    <label for="regionSelect">Selecciona regiones:</label><br>
+    <select id="regionSelect" multiple size="6">
+        <!-- Puedes agregar más según tu data.json -->
+        <option value="Amazonas">Amazonas</option>
+        <option value="Lima">Lima</option>
+        <option value="Callao">Callao</option>
+        <option value="Arequipa">Arequipa</option>
+        <option value="Cusco">Cusco</option>
+        <option value="Piura">Piura</option>
+    </select>
+    <br><br>
+    <button onclick="dibujarGrafico()">Mostrar gráfico</button>
+
+    <div id="chart_div" style="width: 100%; height: 500px;"></div>
+
+    <script>
+        google.charts.load('current', {'packages':['corechart']});
+
+        function dibujarGrafico() {
+            const regionesSeleccionadas = Array.from(document.getElementById('regionSelect').selectedOptions).map(opt => opt.value);
+
+            if (regionesSeleccionadas.length === 0) {
+                alert("Selecciona al menos una región.");
+                return;
+            }
+
+            $.getJSON("data.json", function(data) {
+                const fechas = data[0].confirmed.map(e => e.date);
+
+                const chartData = new google.visualization.DataTable();
+                chartData.addColumn("string", "Fecha");
+
+                regionesSeleccionadas.forEach(region => {
+                    chartData.addColumn("number", region);
+                });
+
+                fechas.forEach((fecha, index) => {
+                    const fila = [fecha];
+                    regionesSeleccionadas.forEach(regionNombre => {
+                        const region = data.find(r => r.region === regionNombre);
+                        const valor = parseInt(region.confirmed[index].value);
+                        fila.push(valor);
+                    });
+                    chartData.addRow(fila);
+                });
+
+                const options = {
+                    title: 'Comparación de Casos Confirmados por Región',
+                    curveType: 'function',
+                    legend: { position: 'bottom' }
+                };
+
+                const chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+                chart.draw(chartData, options);
+            });
+        }
+    </script>
+</body>
+</html>

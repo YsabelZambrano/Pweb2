@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 6 - Gráfico Comparativo sin Lima y Callao</title>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ejercicio 6: Gráfico Comparativo del Crecimiento</h1>
+    <div id="chart_div"></div>
+
+    <script>
+        google.charts.load('current', {'packages':['corechart', 'line']});
+
+        function drawChart(data) {
+            var chartData = new google.visualization.DataTable();
+            chartData.addColumn('string', 'Fecha');
+            data.forEach(function(region) {
+                chartData.addColumn('number', region.region);
+            });
+
+            data[0].confirmed.forEach(function(dia, index) {
+                var row = [dia.date];
+                data.forEach(function(region) {
+                    row.push(parseInt(region.confirmed[index].value));
+                });
+                chartData.addRow(row);
+            });
+
+            var options = {
+                title: 'Crecimiento en Regiones (sin Lima y Callao)',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(chartData, options);
+        }
+
+        function mostrarGraficoSinLimaCallao() {
+            $.ajax({
+                url: 'data.json',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    var regionesExcluyendoLimaCallao = data.filter(function(region) {
+                        return region.region !== "Lima" && region.region !== "Callao";
+                    });
+
+                    drawChart(regionesExcluyendoLimaCallao);
+                },
+                error: function() {
+                    alert("No se pudo cargar el archivo JSON.");
+                }
+            });
+        }
+
+        mostrarGraficoSinLimaCallao(); // Llamamos la función para mostrar el gráfico
+    </script>
+</body>
+</html>

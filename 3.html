@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 3 - Top 10 Regiones con Mayor Suma de Confirmados</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ejercicio 3: Top 10 Regiones con Mayor Suma de Confirmados</h1>
+    <button onclick="mostrarTop10()">Mostrar Top 10</button>
+    <ul id="top10List"></ul>
+
+    <script>
+        function mostrarTop10() {
+            $.ajax({
+                url: 'data.json',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    var confirmadosPorRegion = [];
+
+                    // Calcular total de confirmados por región
+                    data.forEach(function(regionData) {
+                        var totalConfirmados = 0;
+                        regionData.confirmed.forEach(function(dia) {
+                            totalConfirmados += parseInt(dia.value);
+                        });
+
+                        confirmadosPorRegion.push({
+                            region: regionData.region,
+                            totalConfirmados: totalConfirmados
+                        });
+                    });
+
+                    // Ordenar por total de confirmados, de mayor a menor
+                    confirmadosPorRegion.sort(function(a, b) {
+                        return b.totalConfirmados - a.totalConfirmados;
+                    });
+
+                    // Tomar las 10 primeras regiones
+                    var top10 = confirmadosPorRegion.slice(0, 10);
+
+                    // Mostrar resultados
+                    var ul = document.getElementById("top10List");
+                    ul.innerHTML = "";
+                    top10.forEach(function(region) {
+                        var li = document.createElement("li");
+                        li.textContent = "Región: " + region.region + " - Confirmados: " + region.totalConfirmados;
+                        ul.appendChild(li);
+                    });
+                },
+                error: function() {
+                    alert("No se pudo cargar el archivo JSON.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

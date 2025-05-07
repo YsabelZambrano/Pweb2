@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 2 - Número Total de Confirmados por Región</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ejercicio 2: Número Total de Confirmados por Región</h1>
+    <button onclick="mostrarConfirmados()">Mostrar Confirmados</button>
+    <ul id="confirmadosList"></ul>
+
+    <script>
+        function mostrarConfirmados() {
+            // Usamos AJAX para obtener los datos del archivo JSON
+            $.ajax({
+                url: 'data.json', // Ruta al archivo data.json
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Aquí guardaremos el número total de confirmados por región
+                    var confirmadosPorRegion = [];
+
+                    // Recorremos las regiones y calculamos el total de confirmados por cada una
+                    data.forEach(function(regionData) {
+                        var totalConfirmados = 0;
+
+                        // Sumamos todos los confirmados de la región
+                        regionData.confirmed.forEach(function(dia) {
+                            totalConfirmados += parseInt(dia.value);
+                        });
+
+                        // Almacenamos el total de confirmados junto al nombre de la región
+                        confirmadosPorRegion.push({
+                            region: regionData.region,
+                            totalConfirmados: totalConfirmados
+                        });
+                    });
+
+                    // Mostrar los resultados en la página
+                    var ul = document.getElementById("confirmadosList");
+                    ul.innerHTML = ""; // Limpiar lista antes de agregar elementos
+
+                    confirmadosPorRegion.forEach(function(region) {
+                        var li = document.createElement("li");
+                        li.textContent = "Región: " + region.region + " - Confirmados: " + region.totalConfirmados;
+                        ul.appendChild(li);
+                    });
+                },
+                error: function() {
+                    alert("No se pudo cargar el archivo JSON.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
